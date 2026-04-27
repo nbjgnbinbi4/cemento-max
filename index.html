@@ -18,7 +18,16 @@
   ======================================================== -->
   <div id="loader" aria-hidden="true">
     <div class="loader-inner">
-      <div class="loader-logo">C<span>M</span></div>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" width="80" height="80" class="loader-svg-icon">
+        <!-- Casa techo -->
+        <polygon points="4,36 40,4 76,36" fill="#e8a020"/>
+        <!-- Casa cuerpo -->
+        <rect x="10" y="35" width="60" height="40" rx="3" fill="#1a1a1a" stroke="#e8a020" stroke-width="2"/>
+        <!-- C grande -->
+        <path d="M58,43 A22,22 0 1,0 58,67" fill="none" stroke="#e8a020" stroke-width="9" stroke-linecap="round"/>
+        <!-- Chimenea -->
+        <rect x="50" y="14" width="9" height="14" rx="2" fill="#c4880f"/>
+      </svg>
       <div class="loader-bar"><div class="loader-fill"></div></div>
     </div>
   </div>
@@ -35,8 +44,23 @@
     <nav id="navbar" role="navigation" aria-label="Navegación principal">
       <div class="nav-inner">
         <a href="#inicio" class="nav-brand" aria-label="CementoMax inicio">
-          <span class="brand-icon">⬡</span>
-          <span class="brand-name">Cemento<strong>Max</strong></span>
+          <!-- LOGO SVG COMPACTO PARA NAVBAR -->
+          <svg class="logo-svg-nav" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 60" width="220" height="60" aria-label="CementoMax logo">
+            <!-- Casa: techo -->
+            <polygon points="4,26 28,4 52,26" fill="#e8a020"/>
+            <!-- Casa: cuerpo -->
+            <rect x="8" y="25" width="40" height="30" rx="2" fill="#1a1a1a" stroke="#e8a020" stroke-width="1.5"/>
+            <!-- C dentro de la casa -->
+            <path d="M38,31 A14,14 0 1,0 38,49" fill="none" stroke="#e8a020" stroke-width="6" stroke-linecap="round"/>
+            <!-- Chimenea -->
+            <rect x="34" y="10" width="6" height="10" rx="1" fill="#c4880f"/>
+            <!-- Texto: Cemento -->
+            <text x="60" y="33" font-family="Oswald,Arial Black,sans-serif" font-weight="700" font-size="22" fill="#ffffff" letter-spacing="0">Cemento</text>
+            <!-- Texto: Max en dorado -->
+            <text x="62" y="52" font-family="Oswald,Arial Black,sans-serif" font-weight="700" font-size="16" fill="#e8a020" letter-spacing="4">MAX</text>
+            <!-- Línea decorativa bajo MAX -->
+            <rect x="62" y="55" width="100" height="2" rx="1" fill="#e8a020"/>
+          </svg>
         </a>
 
         <button class="nav-toggle" id="navToggle" aria-label="Abrir menú" aria-expanded="false" aria-controls="navMenu">
@@ -56,11 +80,59 @@
     </nav>
 
     <div class="header-content">
-      <div class="header-badge reveal">⚒ Desde 2009 · 15 años de experiencia</div>
-      <h1 class="header-titulo reveal reveal-delay-1">
+      <!-- LOGO GRANDE HERO -->
+      <div class="header-logo-hero reveal">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 130" class="logo-svg-hero" aria-label="CementoMax">
+          <!-- ── ÍCONO CASA ── -->
+          <!-- Sombra base -->
+          <ellipse cx="70" cy="126" rx="58" ry="6" fill="rgba(0,0,0,0.35)"/>
+          <!-- Techo dorado -->
+          <polygon points="6,78 70,12 134,78" fill="#e8a020"/>
+          <!-- Borde inferior techo -->
+          <line x1="6" y1="78" x2="134" y2="78" stroke="#c4880f" stroke-width="3"/>
+          <!-- Chimenea -->
+          <rect x="94" y="24" width="12" height="20" rx="2" fill="#c4880f"/>
+          <!-- Cuerpo de la casa -->
+          <rect x="12" y="77" width="116" height="50" rx="3" fill="#1a1a1a"/>
+          <!-- Borde izquierdo y derecho dorado sutil -->
+          <rect x="12" y="77" width="116" height="50" rx="3" fill="none" stroke="#e8a020" stroke-width="1.5" opacity="0.4"/>
+
+          <!-- ── LETRA C DENTRO DE LA CASA ── -->
+          <!-- C como arco grueso centrado en la casa -->
+          <path d="M106,86 A38,38 0 1,0 106,118"
+                fill="none"
+                stroke="#e8a020"
+                stroke-width="16"
+                stroke-linecap="round"/>
+
+          <!-- Puerta pequeña -->
+          <rect x="55" y="100" width="22" height="27" rx="3" fill="#2a2a2a" stroke="#e8a020" stroke-width="1.2" opacity="0.6"/>
+
+          <!-- ── TEXTO CementoMax ── -->
+          <!-- "Cemento" blanco grande -->
+          <text x="154" y="80"
+                font-family="Oswald, Arial Black, sans-serif"
+                font-weight="700"
+                font-size="62"
+                fill="#ffffff"
+                letter-spacing="-1">Cemento</text>
+          <!-- "MAX" dorado -->
+          <text x="158" y="118"
+                font-family="Oswald, Arial Black, sans-serif"
+                font-weight="700"
+                font-size="34"
+                fill="#e8a020"
+                letter-spacing="10">MAX</text>
+          <!-- Línea bajo MAX -->
+          <rect x="157" y="124" width="235" height="3.5" rx="1.75" fill="#e8a020"/>
+        </svg>
+      </div>
+
+      <div class="header-badge reveal reveal-delay-1">⚒ Desde 2009 · 15 años de experiencia</div>
+      <h1 class="header-titulo reveal reveal-delay-2">
         Construye con<br /><em>materiales que duran</em>
       </h1>
-      <p class="header-sub reveal reveal-delay-2">
+      <p class="header-sub reveal reveal-delay-3">
         Distribuidor mayorista de cemento, varilla, bloques y agregados.<br />
         Calidad certificada · Entrega a domicilio · Asesoría gratuita.
       </p>
@@ -213,7 +285,7 @@
 
           <article class="tarjeta-producto reveal" data-cat="cementantes">
             <div class="tp-imagen">
-              <img src="https://images.unsplash.com/photo-1590345566982-6f0d2d80f2f4?w=400&q=75"
+              <img src="https://www.ecured.cu/images/9/9f/Cemento-portland-300x199.jpg"
                    alt="Sacos de cemento Portland CementoMax" loading="lazy" width="400" height="260"/>
               <span class="tp-badge">Más vendido</span>
             </div>
@@ -235,7 +307,7 @@
 
           <article class="tarjeta-producto reveal reveal-delay-1" data-cat="cementantes">
             <div class="tp-imagen">
-              <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&q=75"
+              <img src="https://distribuidorpanelrey.com.mx/wp-content/uploads/2019/07/Dise%C3%B1o-sin-t%C3%ADtulo-11.png"
                    alt="Cemento blanco para acabados" loading="lazy" width="400" height="260"/>
             </div>
             <div class="tp-cuerpo">
@@ -256,7 +328,7 @@
 
           <article class="tarjeta-producto reveal reveal-delay-2" data-cat="estructura">
             <div class="tp-imagen">
-              <img src="https://images.unsplash.com/photo-1565008576549-57569a49371d?w=400&q=75"
+              <img src="https://elarenal.com.gt/cdn/shop/products/Acero_37833652-2427-4e98-bc0e-b514bb112966.jpg?v=1613757372"
                    alt="Varilla de acero corrugado para construcción" loading="lazy" width="400" height="260"/>
               <span class="tp-badge oferta">Oferta</span>
             </div>
@@ -278,7 +350,7 @@
 
           <article class="tarjeta-producto reveal" data-cat="estructura">
             <div class="tp-imagen">
-              <img src="https://images.unsplash.com/photo-1598300042247-d088f8ab3a91?w=400&q=75"
+              <img src="https://www.hormiglass.cl/wp-content/uploads/2020/07/Bloques-1.jpg"
                    alt="Bloques de hormigón para construcción" loading="lazy" width="400" height="260"/>
             </div>
             <div class="tp-cuerpo">
@@ -299,8 +371,8 @@
 
           <article class="tarjeta-producto reveal reveal-delay-1" data-cat="agregados">
             <div class="tp-imagen">
-              <img src="https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?w=400&q=75"
-                   alt="Arena fina y gruesa para construcción" loading="lazy" width="400" height="260"/>
+              <img src="https://grupohammersac.com/wp-content/uploads/2021/07/2-2-1.jpg"
+                   alt="Arena fina para construcción" loading="lazy" width="400" height="260"/>
             </div>
             <div class="tp-cuerpo">
               <span class="tp-cat">Agregados</span>
@@ -320,7 +392,7 @@
 
           <article class="tarjeta-producto reveal reveal-delay-2" data-cat="agregados">
             <div class="tp-imagen">
-              <img src="https://images.unsplash.com/photo-1587293852726-70cdb56c2866?w=400&q=75"
+              <img src="https://grupoagras.com.mx/images/productos/generales/grava_triturada.webp"
                    alt="Grava triturada para hormigón" loading="lazy" width="400" height="260"/>
             </div>
             <div class="tp-cuerpo">
@@ -341,8 +413,8 @@
 
           <article class="tarjeta-producto reveal" data-cat="acabados">
             <div class="tp-imagen">
-              <img src="https://images.unsplash.com/photo-1562259929-b4e1fd3aef09?w=400&q=75"
-                   alt="Pinturas y acabados para construcción" loading="lazy" width="400" height="260"/>
+              <img src="https://peruconstruye.net/wp-content/uploads/2024/02/4-12.jpg"
+                   alt="Pinturas y recubrimientos para construcción" loading="lazy" width="400" height="260"/>
             </div>
             <div class="tp-cuerpo">
               <span class="tp-cat">Acabados</span>
@@ -496,7 +568,7 @@
               <div class="t-avatar" aria-hidden="true">JM</div>
               <div>
                 <cite>Ing. Jorge Medina</cite>
-                <span>Constructora Medina & Asociados</span>
+                <span>Constructora Medina &amp; Asociados</span>
               </div>
             </footer>
           </blockquote>
@@ -782,8 +854,14 @@
 
           <div class="footer-marca">
             <a href="#inicio" class="footer-logo" aria-label="CementoMax inicio">
-              <span class="brand-icon">⬡</span>
-              <span>Cemento<strong>Max</strong></span>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 54" width="200" height="54">
+                <polygon points="4,24 26,4 48,24" fill="#e8a020"/>
+                <rect x="8" y="23" width="36" height="26" rx="2" fill="#1a1a1a" stroke="#e8a020" stroke-width="1.2"/>
+                <path d="M35,29 A12,12 0 1,0 35,43" fill="none" stroke="#e8a020" stroke-width="5.5" stroke-linecap="round"/>
+                <rect x="30" y="10" width="6" height="9" rx="1" fill="#c4880f"/>
+                <text x="56" y="30" font-family="Oswald,Arial Black,sans-serif" font-weight="700" font-size="20" fill="#ffffff">Cemento</text>
+                <text x="58" y="48" font-family="Oswald,Arial Black,sans-serif" font-weight="700" font-size="14" fill="#e8a020" letter-spacing="4">MAX</text>
+              </svg>
             </a>
             <p>Tu distribuidor de confianza en materiales de construcción de alta calidad. Más de 15 años construyendo juntos.</p>
             <div class="footer-redes">
@@ -1111,4 +1189,3 @@
 
 </body>
 </html>
-
