@@ -13,28 +13,18 @@
 </head>
 <body>
 
-  <!-- ========================================================
-       LOADER
-  ======================================================== -->
   <div id="loader" aria-hidden="true">
     <div class="loader-inner">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" width="80" height="80" class="loader-svg-icon">
-        <!-- Casa techo -->
         <polygon points="4,36 40,4 76,36" fill="#e8a020"/>
-        <!-- Casa cuerpo -->
         <rect x="10" y="35" width="60" height="40" rx="3" fill="#1a1a1a" stroke="#e8a020" stroke-width="2"/>
-        <!-- C grande -->
         <path d="M58,43 A22,22 0 1,0 58,67" fill="none" stroke="#e8a020" stroke-width="9" stroke-linecap="round"/>
-        <!-- Chimenea -->
         <rect x="50" y="14" width="9" height="14" rx="2" fill="#c4880f"/>
       </svg>
       <div class="loader-bar"><div class="loader-fill"></div></div>
     </div>
   </div>
 
-  <!-- ========================================================
-       HEADER
-  ======================================================== -->
   <header id="inicio" role="banner">
     <div class="header-bg" aria-hidden="true">
       <div class="header-particles" id="particles"></div>
@@ -44,21 +34,13 @@
     <nav id="navbar" role="navigation" aria-label="Navegación principal">
       <div class="nav-inner">
         <a href="#inicio" class="nav-brand" aria-label="CementoMax inicio">
-          <!-- LOGO SVG COMPACTO PARA NAVBAR -->
           <svg class="logo-svg-nav" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 60" width="220" height="60" aria-label="CementoMax logo">
-            <!-- Casa: techo -->
             <polygon points="4,26 28,4 52,26" fill="#e8a020"/>
-            <!-- Casa: cuerpo -->
             <rect x="8" y="25" width="40" height="30" rx="2" fill="#1a1a1a" stroke="#e8a020" stroke-width="1.5"/>
-            <!-- C dentro de la casa -->
             <path d="M38,31 A14,14 0 1,0 38,49" fill="none" stroke="#e8a020" stroke-width="6" stroke-linecap="round"/>
-            <!-- Chimenea -->
             <rect x="34" y="10" width="6" height="10" rx="1" fill="#c4880f"/>
-            <!-- Texto: Cemento -->
             <text x="60" y="33" font-family="Oswald,Arial Black,sans-serif" font-weight="700" font-size="22" fill="#ffffff" letter-spacing="0">Cemento</text>
-            <!-- Texto: Max en dorado -->
             <text x="62" y="52" font-family="Oswald,Arial Black,sans-serif" font-weight="700" font-size="16" fill="#e8a020" letter-spacing="4">MAX</text>
-            <!-- Línea decorativa bajo MAX -->
             <rect x="62" y="55" width="100" height="2" rx="1" fill="#e8a020"/>
           </svg>
         </a>
@@ -79,46 +61,18 @@
     </nav>
 
     <div class="header-content">
-      <!-- LOGO GRANDE HERO -->
       <div class="header-logo-hero reveal">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 130" class="logo-svg-hero" aria-label="CementoMax">
-          <!-- ── ÍCONO CASA ── -->
-          <!-- Sombra base -->
           <ellipse cx="70" cy="126" rx="58" ry="6" fill="rgba(0,0,0,0.35)"/>
-          <!-- Techo dorado -->
           <polygon points="6,78 70,12 134,78" fill="#e8a020"/>
-          <!-- Borde inferior techo -->
           <line x1="6" y1="78" x2="134" y2="78" stroke="#c4880f" stroke-width="3"/>
-          <!-- Chimenea -->
           <rect x="94" y="24" width="12" height="20" rx="2" fill="#c4880f"/>
-          <!-- Cuerpo de la casa -->
           <rect x="12" y="77" width="116" height="50" rx="3" fill="#1a1a1a"/>
-          <!-- Borde izquierdo y derecho dorado sutil -->
           <rect x="12" y="77" width="116" height="50" rx="3" fill="none" stroke="#e8a020" stroke-width="1.5" opacity="0.4"/>
-
-          <!-- ── LETRA C DENTRO DE LA CASA ── -->
-          <path d="M106,86 A38,38 0 1,0 106,118"
-                fill="none"
-                stroke="#e8a020"
-                stroke-width="16"
-                stroke-linecap="round"/>
-
-          <!-- Puerta pequeña -->
+          <path d="M106,86 A38,38 0 1,0 106,118" fill="none" stroke="#e8a020" stroke-width="16" stroke-linecap="round"/>
           <rect x="55" y="100" width="22" height="27" rx="3" fill="#2a2a2a" stroke="#e8a020" stroke-width="1.2" opacity="0.6"/>
-
-          <!-- ── TEXTO CementoMax ── -->
-          <text x="154" y="80"
-                font-family="Oswald, Arial Black, sans-serif"
-                font-weight="700"
-                font-size="62"
-                fill="#ffffff"
-                letter-spacing="-1">Cemento</text>
-          <text x="158" y="118"
-                font-family="Oswald, Arial Black, sans-serif"
-                font-weight="700"
-                font-size="34"
-                fill="#e8a020"
-                letter-spacing="10">MAX</text>
+          <text x="154" y="80" font-family="Oswald, Arial Black, sans-serif" font-weight="700" font-size="62" fill="#ffffff" letter-spacing="-1">Cemento</text>
+          <text x="158" y="118" font-family="Oswald, Arial Black, sans-serif" font-weight="700" font-size="34" fill="#e8a020" letter-spacing="10">MAX</text>
           <rect x="157" y="124" width="235" height="3.5" rx="1.75" fill="#e8a020"/>
         </svg>
       </div>
@@ -143,9 +97,6 @@
     </div>
   </header>
 
-  <!-- ========================================================
-       BANDA DE MÉTRICAS
-  ======================================================== -->
   <section class="seccion-stats" aria-label="Estadísticas de la empresa">
     <div class="container">
       <div class="stats-grid">
@@ -176,12 +127,7 @@
     </div>
   </section>
 
-  <!-- ========================================================
-       MAIN
-  ======================================================== -->
   <main id="main-content">
-
-    <!-- ---- NOSOTROS ---- -->
     <section id="nosotros" class="seccion seccion-nosotros" aria-labelledby="nosotros-titulo">
       <div class="container">
         <div class="seccion-intro reveal">
@@ -254,7 +200,6 @@
       </div>
     </section>
 
-    <!-- ---- PRODUCTOS ---- -->
     <section id="productos" class="seccion seccion-productos" aria-labelledby="productos-titulo">
       <div class="container">
         <div class="seccion-intro claro reveal">
@@ -301,7 +246,7 @@
 
           <article class="tarjeta-producto reveal reveal-delay-1" data-cat="cementantes">
             <div class="tp-imagen">
-              <img src="https://distribuidorpanelrey.com.mx/wp-content/uploads/2019/07/Dise%C3%B1o-sin-t%C3%ADtulo-11.png"
+              <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTBAh1NnKScousblDEdDYynRwgwkb84mhgJdg&s"
                    alt="Cemento blanco para acabados" loading="lazy" width="400" height="260"/>
             </div>
             <div class="tp-cuerpo">
@@ -344,7 +289,7 @@
 
           <article class="tarjeta-producto reveal" data-cat="estructura">
             <div class="tp-imagen">
-              <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=400&q=75"
+              <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSjJRdhOOzF85orG3lt-r996Wk2e5McgPSlnw&s"
                    alt="Bloques de hormigón para construcción" loading="lazy" width="400" height="260"/>
             </div>
             <div class="tp-cuerpo">
@@ -481,7 +426,6 @@
       </div>
     </section>
 
-    <!-- ---- GALERÍA ---- -->
     <section id="galeria" class="seccion seccion-galeria" aria-labelledby="galeria-titulo">
       <div class="container">
         <div class="seccion-intro reveal">
@@ -492,7 +436,7 @@
 
         <div class="galeria-grid">
           <figure class="galeria-item grande reveal" role="img">
-            <img src="https://images.unsplash.com/photo-1581579438747-104c53d7b6d0?w=800&q=80"
+            <img src="https://www.shutterstock.com/image-photo/construction-third-stage-new-residential-600nw-2564811613.jpg"
                  alt="Construcción de edificio residencial con materiales CementoMax" loading="lazy" width="800" height="600"/>
             <figcaption>Edificio Residencial Los Álamos — 2024</figcaption>
           </figure>
@@ -520,7 +464,6 @@
       </div>
     </section>
 
-    <!-- ---- TESTIMONIOS ---- -->
     <section id="testimonios" class="seccion seccion-testimonios" aria-labelledby="test-titulo">
       <div class="container">
         <div class="seccion-intro claro reveal">
@@ -568,12 +511,8 @@
         </div>
       </div>
     </section>
-
   </main>
 
-  <!-- ========================================================
-       ASIDE
-  ======================================================== -->
   <aside id="informacion-adicional" aria-label="Información adicional y promociones">
     <div class="container">
       <div class="aside-grid">
@@ -631,9 +570,6 @@
     </div>
   </aside>
 
-  <!-- ========================================================
-       CONTACTO
-  ======================================================== -->
   <section id="contacto" class="seccion seccion-contacto" aria-labelledby="contacto-titulo">
     <div class="container">
       <div class="seccion-intro reveal">
@@ -649,49 +585,38 @@
           <div class="form-row">
             <div class="form-grupo">
               <label for="nombre">Nombre completo <span aria-hidden="true">*</span></label>
-              <input type="text" id="nombre" name="nombre"
-                     placeholder="Carlos Mendoza" required
-                     autocomplete="name" aria-required="true"/>
+              <input type="text" id="nombre" name="nombre" placeholder="Carlos Mendoza" required autocomplete="name" aria-required="true"/>
             </div>
             <div class="form-grupo">
               <label for="empresa">Empresa / Proyecto</label>
-              <input type="text" id="empresa" name="empresa"
-                     placeholder="Mi Constructora S.A."
-                     autocomplete="organization"/>
+              <input type="text" id="empresa" name="empresa" placeholder="Mi Constructora S.A." autocomplete="organization"/>
             </div>
           </div>
           <div class="form-row">
             <div class="form-grupo">
               <label for="email">Correo electrónico <span aria-hidden="true">*</span></label>
-              <input type="email" id="email" name="email"
-                     placeholder="contacto@empresa.com" required
-                     autocomplete="email" aria-required="true"/>
+              <input type="email" id="email" name="email" placeholder="contacto@empresa.com" required autocomplete="email" aria-required="true"/>
             </div>
             <div class="form-grupo">
               <label for="telefono">Teléfono / WhatsApp</label>
-              <input type="tel" id="telefono" name="telefono"
-                     placeholder="+593 99 000 0000"
-                     autocomplete="tel"/>
+              <input type="tel" id="telefono" name="telefono" placeholder="+593 99 000 0000" autocomplete="tel"/>
             </div>
           </div>
           <div class="form-grupo">
             <label for="producto">Producto de interés</label>
             <select id="producto" name="producto">
               <option value="">— Selecciona un producto —</option>
-              <option value="cemento">Cemento Portland</option>
-              <option value="varilla">Varilla de acero</option>
-              <option value="bloques">Bloques de hormigón</option>
-              <option value="arena">Arena y grava</option>
-              <option value="acabados">Pinturas y acabados</option>
-              <option value="herramientas">Herramientas</option>
-              <option value="mixto">Varios productos</option>
+              <option value="cemento">Cemento Portland Tipo I</option>
+              <option value="varilla">Cemento Blanco Tipo I</option>
+              <option value="bloques">Varilla Corrugada Grado 60</option>
+              <option value="arena">Bloques de Hormigón</option>
+              <option value="acabados">Arena Fina y Gruesa</option>
+              <option value="herramientas">Grava Triturada</option>
             </select>
           </div>
           <div class="form-grupo">
             <label for="mensaje">Descripción del proyecto / Consulta <span aria-hidden="true">*</span></label>
-            <textarea id="mensaje" name="mensaje" rows="5"
-                      placeholder="Describe tu proyecto: tipo de obra, cantidades estimadas, ubicación y cualquier detalle relevante..."
-                      required aria-required="true"></textarea>
+            <textarea id="mensaje" name="mensaje" rows="5" placeholder="Describe tu proyecto: tipo de obra, cantidades estimadas, ubicación y cualquier detalle relevante..." required aria-required="true"></textarea>
           </div>
 
           <div class="form-footer">
@@ -739,9 +664,6 @@
     </div>
   </section>
 
-  <!-- ========================================================
-       FOOTER
-  ======================================================== -->
   <footer id="pie-pagina" role="contentinfo">
     <div class="footer-top">
       <div class="container">
@@ -818,18 +740,13 @@
 
   <button id="btnTop" class="btn-top" aria-label="Volver al inicio" title="Volver arriba">↑</button>
 
-  <!-- ========================================================
-       JAVASCRIPT
-  ======================================================== -->
   <script>
-    /* ---- LOADER ---- */
     window.addEventListener('load', () => {
       const loader = document.getElementById('loader');
       loader.classList.add('oculto');
       setTimeout(() => loader.remove(), 600);
     });
 
-    /* ---- NAV: scroll effect + active link ---- */
     const navbar = document.getElementById('navbar');
     const navLinks = document.querySelectorAll('.nav-link:not(.nav-cta)');
     const sections = document.querySelectorAll('section[id], header[id]');
@@ -847,7 +764,6 @@
       });
     }, { passive: true });
 
-    /* ---- MENU MÓVIL ---- */
     const navToggle = document.getElementById('navToggle');
     const navMenu   = document.getElementById('navMenu');
     navToggle.addEventListener('click', () => {
@@ -863,13 +779,11 @@
       });
     });
 
-    /* ---- SCROLL REVEAL ---- */
     const revealObs = new IntersectionObserver((entries) => {
       entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); } });
     }, { threshold: 0.12 });
     document.querySelectorAll('.reveal').forEach(el => revealObs.observe(el));
 
-    /* ---- COUNTER ANIMADO ---- */
     const countObs = new IntersectionObserver((entries) => {
       entries.forEach(e => {
         if (!e.isIntersecting) return;
@@ -888,7 +802,6 @@
     }, { threshold: 0.5 });
     document.querySelectorAll('[data-count]').forEach(el => countObs.observe(el));
 
-    /* ---- TABS DE PRODUCTO ---- */
     const tabs = document.querySelectorAll('.tab-btn');
     const cards = document.querySelectorAll('.tarjeta-producto');
     tabs.forEach(tab => {
@@ -904,7 +817,6 @@
       });
     });
 
-    /* ---- FORMULARIO ---- */
     document.getElementById('formContacto').addEventListener('submit', function(e) {
       e.preventDefault();
       const msg = document.getElementById('formMensaje');
@@ -915,15 +827,12 @@
       msg.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     });
 
-    /* ---- BTN TOP ---- */
     document.getElementById('btnTop').addEventListener('click', () => {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     });
 
-    /* ---- AÑO DINÁMICO ---- */
     document.getElementById('anio').textContent = new Date().getFullYear();
 
-    /* ---- PARTÍCULAS HEADER ---- */
     const pc = document.getElementById('particles');
     if (pc) {
       for (let i = 0; i < 18; i++) {
