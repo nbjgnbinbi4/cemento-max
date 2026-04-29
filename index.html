@@ -73,7 +73,6 @@
           <li><a href="#productos" class="nav-link">Productos</a></li>
           <li><a href="#galeria" class="nav-link">Galería</a></li>
           <li><a href="#testimonios" class="nav-link">Clientes</a></li>
-          <li><a href="#chat" class="nav-link">Chat IA</a></li>
           <li><a href="#contacto" class="nav-link nav-cta">Cotizar</a></li>
         </ul>
       </div>
@@ -488,30 +487,6 @@
       </div>
     </section>
 
-    <!-- ---- VIDEO ---- -->
-    <section class="seccion seccion-video" aria-labelledby="video-titulo">
-      <div class="container">
-        <div class="seccion-intro reveal">
-          <span class="etiqueta-seccion">Contenido educativo</span>
-          <h2 id="video-titulo">Elige bien tus materiales</h2>
-          <div class="linea-acento"></div>
-          <p class="seccion-desc">Aprende a seleccionar el tipo de cemento correcto para cada etapa de tu proyecto.</p>
-        </div>
-        <div class="video-container reveal">
-          <div class="video-frame">
-            <iframe
-              src="https://www.youtube.com/embed/5lG3DsTFbKo"
-              title="Tipos de cemento y sus usos en construcción — CementoMax"
-              frameborder="0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowfullscreen
-              loading="lazy">
-            </iframe>
-          </div>
-        </div>
-      </div>
-    </section>
-
     <!-- ---- GALERÍA ---- -->
     <section id="galeria" class="seccion seccion-galeria" aria-labelledby="galeria-titulo">
       <div class="container">
@@ -771,80 +746,6 @@
   </section>
 
   <!-- ========================================================
-       CHAT IA — MAX
-  ======================================================== -->
-  <section id="chat" class="seccion seccion-chat" aria-labelledby="chat-titulo">
-    <div class="container">
-      <div class="seccion-intro reveal">
-        <span class="etiqueta-seccion">Asistente virtual</span>
-        <h2 id="chat-titulo">Habla con Max, nuestro asesor IA</h2>
-        <div class="linea-acento"></div>
-        <p class="seccion-desc">
-          Consulta precios, calcula materiales o resuelve dudas técnicas.
-          Max responde al instante, 24 horas al día.
-        </p>
-      </div>
-
-      <div class="chat-wrapper reveal">
-
-        <!-- Cabecera del chat -->
-        <div class="chat-header" aria-label="Chat con Max">
-          <div class="chat-avatar" aria-hidden="true">⚙</div>
-          <div class="chat-header-info">
-            <span class="chat-nombre">Max</span>
-            <span class="chat-estado" id="chatEstado">● En línea</span>
-          </div>
-          <button class="chat-limpiar" id="btnLimpiar" title="Limpiar conversación" aria-label="Limpiar conversación">
-            🗑 Limpiar
-          </button>
-        </div>
-
-        <!-- Mensajes -->
-        <div class="chat-mensajes" id="chatMensajes" role="log" aria-live="polite" aria-label="Mensajes del chat">
-          <div class="chat-msg bot" data-inicial="true">
-            <div class="msg-burbuja">
-              👋 ¡Hola! Soy <strong>Max</strong>, el asistente de <strong>CementoMax</strong>.<br/>
-              Puedo ayudarte con precios, cálculo de materiales y consultas técnicas.<br/>
-              ¿En qué te ayudo hoy?
-            </div>
-            <div class="msg-sugerencias">
-              <button class="sugerencia" data-texto="¿Cuántos sacos de cemento necesito para una losa de 20m²?">
-                🧱 Calcular losa 20m²
-              </button>
-              <button class="sugerencia" data-texto="¿Cuál es el precio del cemento Portland?">
-                💰 Precio del cemento
-              </button>
-              <button class="sugerencia" data-texto="¿Hacen entregas a domicilio?">
-                🚚 Entregas
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Input -->
-        <div class="chat-input-area">
-          <textarea
-            id="chatInput"
-            class="chat-input"
-            placeholder="Escribe tu consulta aquí..."
-            rows="1"
-            maxlength="500"
-            aria-label="Campo de mensaje"
-          ></textarea>
-          <button class="chat-send" id="chatSend" aria-label="Enviar mensaje">
-            <span class="send-ico" aria-hidden="true">➤</span>
-          </button>
-        </div>
-        <p class="chat-disclaimer">
-          Respuestas generadas por IA · Para cotizaciones formales llama al
-          <a href="tel:024567890">(02) 456-7890</a>
-        </p>
-
-      </div>
-    </div>
-  </section>
-
-  <!-- ========================================================
        FOOTER
   ======================================================== -->
   <footer id="pie-pagina" role="contentinfo">
@@ -1046,144 +947,6 @@
         `;
         pc.appendChild(d);
       }
-    }
-  </script>
-
-  <!-- ========================================================
-       CHAT SCRIPT
-  ======================================================== -->
-  <script>
-    // ── CONFIGURACIÓN ────────────────────────────────────────
-    // Reemplaza esta URL con la de tu Google Apps Script desplegado
-    const PROXY_URL = "TU_URL_APPS_SCRIPT_AQUI";
-
-    // ── ESTADO ───────────────────────────────────────────────
-    let historial = [];   // [{role:'user',content:''}, {role:'assistant',content:''}]
-    let enviando  = false;
-
-    // ── ELEMENTOS ────────────────────────────────────────────
-    const chatMensajes = document.getElementById('chatMensajes');
-    const chatInput    = document.getElementById('chatInput');
-    const chatSend     = document.getElementById('chatSend');
-    const chatEstado   = document.getElementById('chatEstado');
-    const btnLimpiar   = document.getElementById('btnLimpiar');
-
-    // ── AUTO-RESIZE TEXTAREA ─────────────────────────────────
-    chatInput.addEventListener('input', () => {
-      chatInput.style.height = 'auto';
-      chatInput.style.height = Math.min(chatInput.scrollHeight, 120) + 'px';
-    });
-
-    // ── ENVIAR CON Enter (Shift+Enter = nueva línea) ──────────
-    chatInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); enviarMensaje(); }
-    });
-
-    chatSend.addEventListener('click', enviarMensaje);
-    btnLimpiar.addEventListener('click', limpiarChat);
-
-    // ── SUGERENCIAS ──────────────────────────────────────────
-    document.addEventListener('click', (e) => {
-      if (e.target.classList.contains('sugerencia')) {
-        chatInput.value = e.target.dataset.texto;
-        chatInput.dispatchEvent(new Event('input'));
-        enviarMensaje();
-      }
-    });
-
-    // ── FUNCIÓN PRINCIPAL: ENVIAR ─────────────────────────────
-    async function enviarMensaje() {
-      const texto = chatInput.value.trim();
-      if (!texto || enviando) return;
-
-      // Mostrar mensaje del usuario
-      agregarMensaje('user', texto);
-      historial.push({ role: 'user', content: texto });
-      chatInput.value = '';
-      chatInput.style.height = 'auto';
-
-      // Mostrar typing indicator
-      enviando = true;
-      chatSend.disabled = true;
-      chatEstado.textContent = '● Escribiendo...';
-      chatEstado.style.color = '#f0b02a';
-      const typing = agregarTyping();
-
-      try {
-        const res = await fetch(PROXY_URL, {
-          method:  'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body:    JSON.stringify({ message: texto, history: historial.slice(-8) })
-        });
-
-        const data = await res.json();
-        typing.remove();
-
-        if (data.ok && data.reply) {
-          agregarMensaje('bot', data.reply);
-          historial.push({ role: 'assistant', content: data.reply });
-        } else {
-          agregarMensaje('bot', '⚠️ Hubo un error al procesar tu consulta. Por favor intenta de nuevo o llama al (02) 456-7890.', true);
-        }
-      } catch (err) {
-        typing.remove();
-        agregarMensaje('bot', '⚠️ No se pudo conectar con el asistente. Verifica tu conexión a internet.', true);
-      } finally {
-        enviando = false;
-        chatSend.disabled = false;
-        chatEstado.textContent = '● En línea';
-        chatEstado.style.color = '';
-      }
-    }
-
-    // ── AGREGAR MENSAJE AL DOM ────────────────────────────────
-    function agregarMensaje(tipo, texto, esError = false) {
-      const div = document.createElement('div');
-      div.className = `chat-msg ${tipo}${esError ? ' error' : ''}`;
-
-      const burbuja = document.createElement('div');
-      burbuja.className = 'msg-burbuja';
-
-      // Soporte básico de markdown: **negrita**, saltos de línea
-      burbuja.innerHTML = texto
-        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-        .replace(/\n/g, '<br/>');
-
-      const hora = document.createElement('span');
-      hora.className = 'msg-hora';
-      const ahora = new Date();
-      hora.textContent = ahora.getHours().toString().padStart(2,'0') + ':' +
-                         ahora.getMinutes().toString().padStart(2,'0');
-
-      div.appendChild(burbuja);
-      div.appendChild(hora);
-      chatMensajes.appendChild(div);
-      chatMensajes.scrollTop = chatMensajes.scrollHeight;
-      return div;
-    }
-
-    // ── TYPING INDICATOR ─────────────────────────────────────
-    function agregarTyping() {
-      const div = document.createElement('div');
-      div.className = 'chat-msg bot typing';
-      div.innerHTML = `<div class="msg-burbuja">
-        <span class="dot"></span><span class="dot"></span><span class="dot"></span>
-      </div>`;
-      chatMensajes.appendChild(div);
-      chatMensajes.scrollTop = chatMensajes.scrollHeight;
-      return div;
-    }
-
-    // ── LIMPIAR CHAT ──────────────────────────────────────────
-    function limpiarChat() {
-      historial = [];
-      chatMensajes.innerHTML = '';
-      const bienvenida = document.createElement('div');
-      bienvenida.className = 'chat-msg bot';
-      bienvenida.innerHTML = `<div class="msg-burbuja">
-        🔄 Conversación reiniciada. ¿En qué te puedo ayudar?
-      </div>`;
-      chatMensajes.appendChild(bienvenida);
     }
   </script>
 
