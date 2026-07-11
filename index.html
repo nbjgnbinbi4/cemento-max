@@ -1,0 +1,919 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>Visor VR · GLB</title>
+<style>
+  :root{
+    --acid: #7CFF6B;
+    --bg: #05070a;
+    --panel: rgba(10,14,20,0.85);
+    --line: rgba(124,255,107,0.25);
+  }
+  html,body{
+    margin:0; padding:0; width:100%; height:100%;
+    background:var(--bg); color:#e8f0ea;
+    font-family: 'Courier New', ui-monospace, monospace;
+    overflow:hidden; overscroll-behavior:none; touch-action:none;
+  }
+  #canvasWrap{ position:fixed; inset:0; }
+  canvas{ display:block; width:100%; height:100%; }
+
+  /* ---------- Pantalla de inicio ---------- */
+  #startScreen{
+    position:fixed; inset:0; z-index:50;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:22px; padding:24px; text-align:center;
+    background:
+      radial-gradient(circle at 50% 20%, rgba(124,255,107,0.08), transparent 60%),
+      var(--bg);
+  }
+  #startScreen h1{
+    font-size:15px; letter-spacing:0.35em; text-transform:uppercase;
+    color:var(--acid); margin:0; font-weight:400;
+  }
+  #startScreen .sub{
+    font-size:12px; color:#7a8a80; max-width:320px; line-height:1.6;
+    letter-spacing:0.02em;
+  }
+  .scanline{
+    width:180px; height:1px; background:var(--line);
+  }
+  .btn{
+    appearance:none; border:1px solid var(--acid); background:transparent;
+    color:var(--acid); font-family:inherit; font-size:12px; letter-spacing:0.15em;
+    text-transform:uppercase; padding:14px 22px; border-radius:2px;
+    cursor:pointer; min-width:230px;
+  }
+  .btn:active{ background:rgba(124,255,107,0.15); }
+  .btn.solid{ background:var(--acid); color:#03150a; font-weight:bold; }
+  .btn:disabled{ opacity:0.35; }
+  #fileLabel{ display:block; }
+  #fileInput{ display:none; }
+  #fileName{ font-size:11px; color:var(--acid); min-height:14px; letter-spacing:0.05em; }
+  #status{ font-size:11px; color:#7a8a80; min-height:16px; }
+
+  /* ---------- HUD dentro de VR ---------- */
+  #hud{
+    position:fixed; inset:0; z-index:40; pointer-events:none;
+    display:none;
+  }
+  #hud.active{ display:block; pointer-events:auto; }
+  #hud.controls-hidden #topBar,
+  #hud.controls-hidden #joyZone,
+  #hud.controls-hidden #zoomZone,
+  #hud.controls-hidden #ipdRow{ display:none; }
+
+  #joyZone{
+    position:absolute; left:4vw; bottom:6vh; width:34vw; height:34vw; max-width:220px; max-height:220px;
+    pointer-events:auto;
+  }
+  #joyBase{
+    position:absolute; inset:0; border:1px solid var(--line);
+    border-radius:50%; background:rgba(124,255,107,0.04);
+  }
+  #joyStick{
+    position:absolute; width:38%; height:38%; left:31%; top:31%;
+    border-radius:50%; background:var(--acid); opacity:0.85;
+  }
+
+  #zoomZone{
+    position:absolute; right:4vw; bottom:6vh; display:flex; flex-direction:column;
+    gap:10px; pointer-events:auto; align-items:center;
+  }
+  .roundBtn{
+    width:52px; height:52px; border-radius:50%; border:1px solid var(--acid);
+    background:rgba(5,7,10,0.6); color:var(--acid); font-size:22px; line-height:1;
+    display:flex; align-items:center; justify-content:center;
+  }
+  #zoomLabel{
+    font-size:10px; color:#7a8a80; letter-spacing:0.1em;
+  }
+
+  #topBar{
+    position:absolute; top:0; left:0; right:0; padding:14px 16px;
+    display:flex; justify-content:space-between; align-items:center;
+    pointer-events:auto;
+  }
+  #topBar .tag{
+    font-size:10px; letter-spacing:0.2em; color:var(--acid); opacity:0.7;
+  }
+  #recenterBtn, #exitBtn{
+    font-size:10px; letter-spacing:0.1em; text-transform:uppercase;
+    color:var(--acid); background:transparent; border:1px solid var(--line);
+    padding:8px 12px; border-radius:2px;
+  }
+
+  #ipdRow{
+    position:absolute; bottom:1.5vh; left:50%; transform:translateX(-50%);
+    display:flex; align-items:center; gap:8px; pointer-events:auto;
+    font-size:9px; color:#7a8a80; letter-spacing:0.08em;
+  }
+  #ipdRow input[type=range]{ width:26vw; max-width:160px; accent-color: var(--acid); }
+
+  #centerCross{
+    position:absolute; left:50%; top:50%; width:0; height:0; pointer-events:none;
+  }
+
+  #debugToggle{
+    position:fixed; top:10px; right:10px; z-index:60;
+    width:34px; height:34px; border-radius:50%; border:1px solid var(--acid);
+    background:rgba(5,7,10,0.7); color:var(--acid); font-size:14px;
+  }
+  #debugPanel{
+    position:fixed; inset:0; z-index:70; background:rgba(2,4,3,0.94);
+    color:#a8ffb0; font-size:11px; line-height:1.6; padding:16px;
+    padding-top:56px; overflow-y:auto; display:none; white-space:pre-wrap;
+  }
+  #debugPanel.active{ display:block; }
+  #debugPanel .row{ border-bottom:1px dashed rgba(124,255,107,0.15); padding:4px 0; }
+  #debugPanel .k{ color:var(--acid); }
+  #debugCloseBtn{
+    position:fixed; top:10px; right:10px; z-index:75;
+  }
+  #gyroWarning{
+    position:fixed; top:52px; left:50%; transform:translateX(-50%); z-index:45;
+    background:rgba(255,90,60,0.15); border:1px solid #ff5a3c; color:#ffb6a3;
+    font-size:10px; padding:8px 12px; border-radius:2px; max-width:80vw; text-align:center;
+    display:none; pointer-events:none;
+  }
+  #gyroWarning.show{ display:block; }
+
+  #gamepadBadge{
+    position:fixed; top:52px; left:50%; transform:translateX(-50%); z-index:44;
+    background:rgba(124,255,107,0.12); border:1px solid var(--acid); color:var(--acid);
+    font-size:10px; padding:6px 12px; border-radius:2px; display:none; pointer-events:none;
+    text-align:center; max-width:80vw;
+  }
+  #gamepadBadge.show{ display:block; }  #hideControlsBtn{
+    position:fixed; bottom:10px; right:10px; z-index:65; pointer-events:auto;
+    width:30px; height:30px; border-radius:50%; border:1px solid var(--line);
+    background:rgba(5,7,10,0.5); color:var(--acid); font-size:13px; opacity:0.55;
+  }
+</style>
+</head>
+<body>
+
+<div id="canvasWrap"></div>
+<button id="debugToggle">i</button>
+<div id="debugPanel">
+  <button id="debugCloseBtn" class="roundBtn" style="width:34px;height:34px;font-size:16px;">×</button>
+  <div id="debugContent"></div>
+</div>
+
+<div id="startScreen">
+  <h1>Visor VR · GLB</h1>
+  <div class="scanline"></div>
+  <div class="sub">Cargá tu modelo 3D, activá el giroscopio y metelo a tus gafas.
+  Un joystick te deja caminar y los botones +/− hacen zoom manual. Tocá el ícono "i" (arriba a la derecha) en cualquier momento para ver el diagnóstico.
+  <br><br>¿Tenés un control DualShock 4 por Bluetooth? Conectalo y apretá cualquier botón antes de entrar — el stick derecho pasa a mover la cámara y el izquierdo a caminar.</div>
+
+  <label id="fileLabel" class="btn" for="fileInput">1 · Elegir archivo .glb</label>
+  <input id="fileInput" type="file" accept=".glb,.gltf" />
+  <div id="fileName"></div>
+
+  <button id="gyroBtn" class="btn" disabled>2 · Activar giroscopio</button>
+  <div id="gyroStatus" style="font-size:11px; color:#7a8a80; min-height:14px;">Elegí un archivo primero</div>
+
+  <button id="enterBtn" class="btn solid" disabled>3 · Entrar en modo VR</button>
+  <div id="status">Cargá un archivo para continuar</div>
+</div>
+
+<div id="hud">
+  <div id="topBar">
+    <div class="tag">VR·GLB</div>
+    <div style="display:flex; gap:8px;">
+      <button id="recenterBtn">Recentrar</button>
+      <button id="exitBtn">Salir</button>
+    </div>
+  </div>
+
+  <div id="joyZone">
+    <div id="joyBase"></div>
+    <div id="joyStick"></div>
+  </div>
+
+  <div id="zoomZone">
+    <button id="zoomInBtn" class="roundBtn">+</button>
+    <div id="zoomLabel">ZOOM</div>
+    <button id="zoomOutBtn" class="roundBtn">−</button>
+  </div>
+
+  <div id="ipdRow">
+    <span>OJOS</span>
+    <input id="ipdSlider" type="range" min="2" max="12" value="6.4" step="0.1">
+  </div>
+
+  <div id="gyroWarning">Sin señal del giroscopio · arrastrá el dedo para mirar</div>
+  <div id="gamepadBadge">🎮 —</div>
+
+  <button id="hideControlsBtn" title="Mostrar/ocultar controles">👁</button>
+</div>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+
+/* ---------------------------------------------------------
+   ESTADO GLOBAL
+--------------------------------------------------------- */
+let renderer, scene, headYaw, headPitchGroup, leftCam, rightCam;
+let player; // grupo que representa la posición del jugador (caminar)
+let modelRoot = null;
+let testCube = null;
+let clock = new THREE.Clock();
+
+let ipd = 0.064;          // separación entre ojos (m), ajustable
+let baseFov = 60;         // fov base
+let zoomLevel = 0;        // -10..10, modifica el fov
+let moveVec = new THREE.Vector2(0,0); // joystick: x=strafe, y=forward
+const MOVE_SPEED = 1.6;   // m/s
+
+let orientationReady = false;
+let screenOrientAngle = 0;
+let deviceAlphaOffset = null; // para "recentrar"
+let lastAlpha = 0, lastBeta = 0, lastGamma = 0;
+let gyroDetected = false;
+let lastOrientTime = 0;
+let gyroEventCount = 0;
+
+// look manual (respaldo si no hay giroscopio, y también usado por el stick derecho del gamepad)
+let manualYaw = 0, manualPitch = 0;
+let dragActive = false, dragLastX = 0, dragLastY = 0, dragId = null;
+
+// gamepad (DualShock 4 u otro control estándar por Bluetooth/USB)
+let gamepadIndex = null;
+let gamepadName = '';
+const GAMEPAD_DEADZONE = 0.15;
+const GAMEPAD_LOOK_SPEED = 2.2; // rad/s a stick completo
+const GAMEPAD_MOVE_SPEED_MULT = 1.0;
+
+/* ---------------------------------------------------------
+   PANEL DE DIAGNÓSTICO (visible en pantalla, sin consola)
+--------------------------------------------------------- */
+const debugLines = [];
+function debugLog(msg){
+  const t = new Date().toISOString().substr(11,8);
+  debugLines.push(`[${t}] ${msg}`);
+  if(debugLines.length > 80) debugLines.shift();
+}
+window.addEventListener('error', (e)=>{
+  debugLog(`JS ERROR: ${e.message} (${e.filename}:${e.lineno})`);
+});
+window.addEventListener('unhandledrejection', (e)=>{
+  debugLog(`PROMISE ERROR: ${e.reason}`);
+});
+
+const debugPanel = document.getElementById('debugPanel');
+const debugContent = document.getElementById('debugContent');
+document.getElementById('debugToggle').addEventListener('click', ()=>{
+  debugPanel.classList.add('active');
+  refreshDebugPanel();
+});
+document.getElementById('debugCloseBtn').addEventListener('click', ()=>{
+  debugPanel.classList.remove('active');
+});
+
+function refreshDebugPanel(){
+  if(!debugPanel.classList.contains('active')) return;
+  const gl = renderer ? renderer.getContext() : null;
+  let glInfo = 'no inicializado';
+  if(gl){
+    const dbg = gl.getExtension('WEBGL_debug_renderer_info');
+    glInfo = dbg ? gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL) : 'WebGL activo (info oculta)';
+  }
+  const lines = [];
+  lines.push(`== ENTORNO ==`);
+  lines.push(`UserAgent: ${navigator.userAgent}`);
+  lines.push(`Pantalla: ${window.innerWidth}x${window.innerHeight}  devicePixelRatio:${window.devicePixelRatio}`);
+  lines.push(`WebGL renderer: ${glInfo}`);
+  lines.push(`Fullscreen activo: ${!!document.fullscreenElement}`);
+  lines.push(`Orientation lock soportado: ${!!(screen.orientation && screen.orientation.lock)}`);
+  lines.push(``);
+  lines.push(`== GIROSCOPIO ==`);
+  lines.push(`Eventos deviceorientation recibidos: ${gyroEventCount}`);
+  lines.push(`Última lectura hace: ${lastOrientTime ? ((performance.now()-lastOrientTime)/1000).toFixed(1)+'s' : 'nunca'}`);
+  lines.push(`alpha:${lastAlpha?.toFixed?.(1)}  beta:${lastBeta?.toFixed?.(1)}  gamma:${lastGamma?.toFixed?.(1)}`);
+  lines.push(`Modo activo: ${gyroDetected && (performance.now()-lastOrientTime)<1500 ? 'GIROSCOPIO' : 'ARRASTRE MANUAL / GAMEPAD'}`);
+  lines.push(``);
+  lines.push(`== GAMEPAD ==`);
+  const padsNow = navigator.getGamepads ? navigator.getGamepads() : [];
+  const activePad = gamepadIndex !== null ? padsNow[gamepadIndex] : null;
+  if(activePad){
+    lines.push(`Conectado: ${activePad.id}`);
+    lines.push(`Mapping: ${activePad.mapping || '(sin estandarizar - los índices de botones pueden no coincidir)'}`);
+    lines.push(`Ejes: [${activePad.axes.map(a=>a.toFixed(2)).join(', ')}]`);
+    lines.push(`Nota: el giroscopio interno del DS4 no es legible desde Chrome Android (requiere WebHID, solo en escritorio). Los sticks/gatillos sí funcionan.`);
+  } else {
+    lines.push(`(sin gamepad conectado — conectalo por Bluetooth y apretá un botón)`);
+  }
+  lines.push(``);
+  lines.push(`== MODELO ==`);
+  if(modelRoot){
+    const b = new THREE.Box3().setFromObject(modelRoot);
+    const s = b.getSize(new THREE.Vector3());
+    const c = b.getCenter(new THREE.Vector3());
+    lines.push(`Cargado ✓  escala:${modelRoot.scale.x.toFixed(3)}`);
+    lines.push(`Tamaño final (x,y,z): ${s.x.toFixed(2)}, ${s.y.toFixed(2)}, ${s.z.toFixed(2)}`);
+    lines.push(`Centro final: ${c.x.toFixed(2)}, ${c.y.toFixed(2)}, ${c.z.toFixed(2)}`);
+  } else {
+    lines.push(`(sin modelo cargado todavía)`);
+  }
+  if(player){
+    lines.push(``);
+    lines.push(`== JUGADOR / CÁMARA ==`);
+    lines.push(`Posición jugador: ${player.position.x.toFixed(2)}, ${player.position.y.toFixed(2)}, ${player.position.z.toFixed(2)}`);
+    lines.push(`FOV actual: ${leftCam ? leftCam.fov.toFixed(1) : '-'}`);
+  }
+  lines.push(``);
+  lines.push(`== LOG ==`);
+  lines.push(...debugLines.slice(-40));
+
+  debugContent.innerHTML = lines.map(l=>`<div class="row">${l.replace(/</g,'&lt;')}</div>`).join('');
+}
+setInterval(refreshDebugPanel, 500);
+
+/* ---------------------------------------------------------
+   UI: selección de archivo
+--------------------------------------------------------- */
+const fileInput = document.getElementById('fileInput');
+const fileName = document.getElementById('fileName');
+const gyroBtn = document.getElementById('gyroBtn');
+const gyroStatus = document.getElementById('gyroStatus');
+const enterBtn = document.getElementById('enterBtn');
+const statusEl = document.getElementById('status');
+let pendingFile = null;
+let gyroPermissionGranted = false;
+
+fileInput.addEventListener('change', (e) => {
+  const f = e.target.files[0];
+  if(!f) return;
+  pendingFile = f;
+  fileName.textContent = f.name;
+  gyroBtn.disabled = false;
+  gyroStatus.textContent = 'Tocá el botón para activar el sensor (necesita tu toque directo)';
+  statusEl.textContent = 'Activá el giroscopio, o pasá directo a "Entrar" y usá el dedo para mirar.';
+  enterBtn.disabled = false; // siempre se puede entrar; sin gyro cae al modo de arrastre
+});
+
+/* ---------------------------------------------------------
+   INICIALIZAR THREE.JS
+--------------------------------------------------------- */
+function initThree(){
+  const wrap = document.getElementById('canvasWrap');
+  renderer = new THREE.WebGLRenderer({ antialias:true, alpha:false });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  wrap.appendChild(renderer.domElement);
+
+  scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x05070a);
+
+  // Piso guía (por si el modelo no tiene referencia clara de suelo)
+  const grid = new THREE.GridHelper(40, 40, 0x2a3a30, 0x152018);
+  grid.position.y = 0;
+  scene.add(grid);
+
+  scene.add(new THREE.HemisphereLight(0xffffff, 0x222233, 1.3));
+  const dir = new THREE.DirectionalLight(0xffffff, 1.2);
+  dir.position.set(3,6,4);
+  scene.add(dir);
+  const fill = new THREE.DirectionalLight(0xffffff, 0.4);
+  fill.position.set(-4,2,-3);
+  scene.add(fill);
+
+  // Cubo de referencia SIEMPRE visible al entrar, sirve para confirmar que
+  // el render funciona incluso si el modelo falla al cargar o queda mal ubicado.
+  testCube = new THREE.Mesh(
+    new THREE.BoxGeometry(0.4,0.4,0.4),
+    new THREE.MeshStandardMaterial({ color:0xff33cc, emissive:0x330022 })
+  );
+  testCube.position.set(0, 1.6, 0);
+  scene.add(testCube);
+  scene.add(new THREE.AxesHelper(1.5));
+
+  // Jerarquía: player (posición / caminar) -> headYaw (rotación completa por giroscopio)
+  player = new THREE.Group();
+  player.position.set(0, 1.6, 3);
+  scene.add(player);
+
+  headYaw = new THREE.Group(); // recibe el quaternion completo del giroscopio
+  player.add(headYaw);
+
+  leftCam = new THREE.PerspectiveCamera(baseFov, (window.innerWidth/2)/window.innerHeight, 0.05, 2000);
+  rightCam = new THREE.PerspectiveCamera(baseFov, (window.innerWidth/2)/window.innerHeight, 0.05, 2000);
+  headYaw.add(leftCam);
+  headYaw.add(rightCam);
+  updateIPD();
+
+  window.addEventListener('resize', onResize);
+  window.addEventListener('orientationchange', onResize);
+}
+
+function updateIPD(){
+  leftCam.position.set(-ipd/2, 0, 0);
+  rightCam.position.set(ipd/2, 0, 0);
+}
+
+function onResize(){
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  const halfAspect = (window.innerWidth/2)/window.innerHeight;
+  leftCam.aspect = halfAspect;
+  rightCam.aspect = halfAspect;
+  leftCam.updateProjectionMatrix();
+  rightCam.updateProjectionMatrix();
+}
+
+/* ---------------------------------------------------------
+   CARGAR GLB
+--------------------------------------------------------- */
+function loadModel(file){
+  statusEl.textContent = 'Cargando modelo...';
+  debugLog(`Cargando archivo: ${file.name} (${(file.size/1024/1024).toFixed(2)} MB)`);
+  const url = URL.createObjectURL(file);
+  const loader = new GLTFLoader();
+  loader.load(url, (gltf) => {
+    if(modelRoot) scene.remove(modelRoot);
+    modelRoot = gltf.scene;
+    scene.add(modelRoot);
+
+    // --- PASO 1: medir el modelo tal cual viene, sin transformar ---
+    const rawBox = new THREE.Box3().setFromObject(modelRoot);
+    const rawSize = rawBox.getSize(new THREE.Vector3());
+    const rawCenter = rawBox.getCenter(new THREE.Vector3());
+    const rawMaxDim = Math.max(rawSize.x, rawSize.y, rawSize.z) || 1;
+    debugLog(`Tamaño original: ${rawSize.x.toFixed(3)}, ${rawSize.y.toFixed(3)}, ${rawSize.z.toFixed(3)} (max:${rawMaxDim.toFixed(3)})`);
+
+    // Centrar X/Z y apoyar sobre el piso y=0, usando las medidas originales
+    modelRoot.position.x -= rawCenter.x;
+    modelRoot.position.z -= rawCenter.z;
+    modelRoot.position.y -= rawBox.min.y;
+
+    // Reescalar a un tamaño manejable para caminar (objetivo ~5 unidades de lado mayor)
+    const targetSize = 5;
+    const scale = targetSize / rawMaxDim;
+    modelRoot.scale.setScalar(scale);
+
+    // --- PASO 2: volver a medir DESPUÉS de mover y escalar. ---
+    // Esto es la corrección clave: antes usábamos las medidas originales (sin
+    // escalar) para decidir dónde poner al jugador, así que si el .glb venía
+    // en una escala rara la cámara terminaba adentro del modelo y no se veía nada.
+    const finalBox = new THREE.Box3().setFromObject(modelRoot);
+    const finalSize = finalBox.getSize(new THREE.Vector3());
+    const finalCenter = finalBox.getCenter(new THREE.Vector3());
+    const radius = finalSize.length() / 2 || 1;
+
+    const camDistance = Math.max(radius * 1.8, 1.5);
+    const eyeHeight = Math.max(1.6, finalBox.min.y + 1.4);
+    player.position.set(finalCenter.x, eyeHeight, finalCenter.z + camDistance);
+
+    // Ocultar el cubo de referencia una vez que el modelo real está ubicado,
+    // para no confundirlo con el mapa cargado (se puede reactivar desde el panel "i" si hace falta)
+    if(testCube) testCube.visible = false;
+
+    debugLog(`Modelo listo. escala=${scale.toFixed(4)} radio=${radius.toFixed(2)} jugador=(${player.position.x.toFixed(2)},${player.position.y.toFixed(2)},${player.position.z.toFixed(2)})`);
+    statusEl.textContent = 'Modelo cargado ✓';
+    URL.revokeObjectURL(url);
+  }, (xhr) => {
+    if(xhr.total){
+      const pct = Math.round((xhr.loaded/xhr.total)*100);
+      statusEl.textContent = `Cargando... ${pct}%`;
+    }
+  }, (err) => {
+    debugLog(`ERROR AL CARGAR MODELO: ${err && err.message ? err.message : err}`);
+    statusEl.textContent = 'Error al cargar el archivo. Probá con otro .glb (mirá el panel "i" para más detalle)';
+  });
+}
+
+/* ---------------------------------------------------------
+   GIROSCOPIO (DeviceOrientation) -> quaternion de la cabeza
+--------------------------------------------------------- */
+const zee = new THREE.Vector3(0,0,1);
+const euler = new THREE.Euler();
+const q0 = new THREE.Quaternion();
+const q1 = new THREE.Quaternion(-Math.sqrt(0.5),0,0,Math.sqrt(0.5));
+
+function setHeadQuaternionFromDevice(alpha, beta, gamma, screenOrient){
+  const alphaRad = THREE.MathUtils.degToRad(alpha);
+  const betaRad = THREE.MathUtils.degToRad(beta);
+  const gammaRad = THREE.MathUtils.degToRad(gamma);
+  const orientRad = THREE.MathUtils.degToRad(screenOrient);
+
+  euler.set(betaRad, alphaRad, -gammaRad, 'YXZ');
+  headYaw.quaternion.setFromEuler(euler);
+  headYaw.quaternion.multiply(q1);
+  headYaw.quaternion.multiply(q0.setFromAxisAngle(zee, -orientRad));
+}
+
+function handleOrientation(e){
+  if(e.alpha === null && e.beta === null && e.gamma === null) return;
+  lastAlpha = e.alpha || 0; lastBeta = e.beta || 0; lastGamma = e.gamma || 0;
+  gyroDetected = true;
+  gyroEventCount++;
+  lastOrientTime = performance.now();
+}
+
+function getScreenOrientationAngle(){
+  if(screen.orientation && typeof screen.orientation.angle === 'number'){
+    return screen.orientation.angle;
+  }
+  return window.orientation || 0;
+}
+
+async function enableOrientation(){
+  const needsPermission = typeof DeviceOrientationEvent !== 'undefined' &&
+     typeof DeviceOrientationEvent.requestPermission === 'function';
+  debugLog(`¿API de permiso presente?: ${needsPermission} (Chrome Android reciente y iOS Safari la tienen; Chrome viejo en Android no)`);
+  if(needsPermission){
+    try{
+      // IMPORTANTE: esta es la PRIMERA línea async del handler del botón,
+      // sin ningún await previo (ni fullscreen ni nada), porque requestPermission()
+      // exige "transient activation" recién consumida por el toque del usuario.
+      const resp = await DeviceOrientationEvent.requestPermission();
+      debugLog(`Respuesta de permiso: ${resp}`);
+      if(resp !== 'granted'){
+        return { ok:false, reason:`El navegador respondió "${resp}"` };
+      }
+    }catch(err){
+      debugLog(`requestPermission() rechazó: ${err.name || ''} ${err.message || err}`);
+      return { ok:false, reason: err.message || String(err) };
+    }
+  }
+  window.addEventListener('deviceorientation', handleOrientation, true);
+  orientationReady = true;
+  return { ok:true };
+}
+
+gyroBtn.addEventListener('click', async ()=>{
+  gyroStatus.textContent = 'Pidiendo permiso...';
+  const result = await enableOrientation();
+  if(result.ok){
+    gyroStatus.textContent = 'Giroscopio activado ✓. Girá el celular para probar.';
+    gyroPermissionGranted = true;
+    // Verificación extra: si en 2s no llegó ningún evento real, avisar
+    setTimeout(()=>{
+      if(gyroEventCount === 0){
+        gyroStatus.textContent = 'Permiso concedido, pero no llegan datos del sensor todavía. Revisá el panel "i".';
+        debugLog('Permiso OK pero 0 eventos deviceorientation tras 2s — puede ser que este celular no tenga giroscopio, o que el visor esté bloqueando el sensor.');
+      }
+    }, 2000);
+  } else {
+    gyroStatus.textContent = `No se pudo activar (${result.reason}). Podés seguir con el dedo.`;
+  }
+});
+
+/* ---------------------------------------------------------
+   JOYSTICK TÁCTIL (caminar)
+--------------------------------------------------------- */
+const joyZone = document.getElementById('joyZone');
+const joyStick = document.getElementById('joyStick');
+let joyActive = false, joyCenter = {x:0,y:0}, joyTouchId = null;
+const JOY_RADIUS_PX = 60;
+
+function joyPointerDown(clientX, clientY, id){
+  const rect = joyZone.getBoundingClientRect();
+  joyCenter.x = rect.left + rect.width/2;
+  joyCenter.y = rect.top + rect.height/2;
+  joyActive = true;
+  joyTouchId = id;
+}
+function joyPointerMove(clientX, clientY){
+  if(!joyActive) return;
+  let dx = clientX - joyCenter.x;
+  let dy = clientY - joyCenter.y;
+  const dist = Math.min(Math.hypot(dx,dy), JOY_RADIUS_PX);
+  const angle = Math.atan2(dy,dx);
+  dx = Math.cos(angle)*dist;
+  dy = Math.sin(angle)*dist;
+  joyStick.style.transform = `translate(${dx}px, ${dy}px)`;
+  moveVec.x = dx / JOY_RADIUS_PX;       // strafe
+  moveVec.y = -dy / JOY_RADIUS_PX;      // adelante/atras
+}
+function joyPointerUp(){
+  joyActive = false;
+  joyTouchId = null;
+  joyStick.style.transform = `translate(0px,0px)`;
+  moveVec.set(0,0);
+}
+
+joyZone.addEventListener('touchstart', (e)=>{
+  e.preventDefault();
+  const t = e.changedTouches[0];
+  joyPointerDown(t.clientX, t.clientY, t.identifier);
+}, {passive:false});
+joyZone.addEventListener('touchmove', (e)=>{
+  e.preventDefault();
+  for(const t of e.changedTouches){
+    if(t.identifier === joyTouchId) joyPointerMove(t.clientX, t.clientY);
+  }
+}, {passive:false});
+window.addEventListener('touchend', (e)=>{
+  for(const t of e.changedTouches){
+    if(t.identifier === joyTouchId) joyPointerUp();
+  }
+});
+
+// Mouse fallback (para probar en PC)
+joyZone.addEventListener('mousedown', (e)=> joyPointerDown(e.clientX, e.clientY, 'mouse'));
+window.addEventListener('mousemove', (e)=>{ if(joyActive) joyPointerMove(e.clientX, e.clientY); });
+window.addEventListener('mouseup', ()=>{ if(joyActive) joyPointerUp(); });
+
+/* ---------------------------------------------------------
+   GAMEPAD (DualShock 4 / control estándar por Bluetooth o USB)
+   Nota: el giroscopio interno del DS4 NO se puede leer desde Chrome
+   Android (esa lectura requiere WebHID, disponible solo en Chrome/Edge
+   de escritorio). Lo que sí funciona perfecto en Android son los
+   sticks analógicos, gatillos y botones vía la Gamepad API estándar.
+--------------------------------------------------------- */
+const gamepadBadge = document.getElementById('gamepadBadge');
+
+window.addEventListener('gamepadconnected', (e)=>{
+  gamepadIndex = e.gamepad.index;
+  gamepadName = e.gamepad.id;
+  debugLog(`Gamepad conectado: ${gamepadName} (mapping: ${e.gamepad.mapping || 'ninguno'})`);
+  gamepadBadge.textContent = `🎮 ${gamepadName.slice(0,28)}`;
+  gamepadBadge.classList.add('show');
+  setTimeout(()=> gamepadBadge.classList.remove('show'), 3000);
+});
+window.addEventListener('gamepaddisconnected', (e)=>{
+  debugLog(`Gamepad desconectado: ${gamepadName}`);
+  if(gamepadIndex === e.gamepad.index) gamepadIndex = null;
+});
+
+function applyDeadzone(v){
+  return Math.abs(v) < GAMEPAD_DEADZONE ? 0 : v;
+}
+
+// Devuelve true si se leyó un gamepad activo este frame (para que el
+// joystick táctil no compita con él si ambos están presentes)
+function pollGamepad(dt){
+  const pads = navigator.getGamepads ? navigator.getGamepads() : [];
+  let pad = null;
+  if(gamepadIndex !== null) pad = pads[gamepadIndex];
+  if(!pad){
+    // por si el evento de conexión no disparó pero ya hay uno activo
+    for(const p of pads){ if(p){ pad = p; gamepadIndex = p.index; gamepadName = p.id; break; } }
+  }
+  if(!pad) return false;
+
+  const lx = applyDeadzone(pad.axes[0] || 0);
+  const ly = applyDeadzone(pad.axes[1] || 0);
+  const rx = applyDeadzone(pad.axes[2] || 0);
+  const ry = applyDeadzone(pad.axes[3] || 0);
+
+  const active = lx||ly||rx||ry ||
+    (pad.buttons[6] && pad.buttons[6].value > 0.05) ||
+    (pad.buttons[7] && pad.buttons[7].value > 0.05);
+
+  // Stick izquierdo: caminar (mismo vector que usa el joystick táctil).
+  // Si el usuario está tocando el joystick en pantalla en este momento,
+  // le damos prioridad a eso y no lo pisamos con el stick del gamepad.
+  if(!joyActive){
+    moveVec.x = lx;
+    moveVec.y = -ly;
+  }
+
+  // Stick derecho: mirar (se suma al mismo yaw/pitch manual que usa el arrastre táctil)
+  manualYaw -= rx * GAMEPAD_LOOK_SPEED * dt;
+  manualPitch = THREE.MathUtils.clamp(manualPitch - ry * GAMEPAD_LOOK_SPEED * dt, -1.4, 1.4);
+
+  // Gatillos L2/R2 (o botones 6/7 en mapping "standard"): zoom
+  const l2 = pad.buttons[6] ? pad.buttons[6].value : 0;
+  const r2 = pad.buttons[7] ? pad.buttons[7].value : 0;
+  if(l2 > 0.05) applyZoom(-l2 * dt * 20);
+  if(r2 > 0.05) applyZoom(r2 * dt * 20);
+
+  // Botón Options (start, índice 9 en mapping estándar): recentrar mirada
+  if(pad.buttons[9] && pad.buttons[9].pressed && !pad.__optionsWasPressed){
+    manualYaw = 0; manualPitch = 0;
+    deviceAlphaOffset = lastAlpha;
+    debugLog('Recentrado por botón Options del gamepad');
+  }
+  pad.__optionsWasPressed = pad.buttons[9] && pad.buttons[9].pressed;
+
+  // Botón Share/Select (índice 8): mostrar/ocultar controles
+  if(pad.buttons[8] && pad.buttons[8].pressed && !pad.__shareWasPressed){
+    document.getElementById('hud').classList.toggle('controls-hidden');
+  }
+  pad.__shareWasPressed = pad.buttons[8] && pad.buttons[8].pressed;
+
+  return active;
+}
+/* ---------------------------------------------------------
+   ZOOM MANUAL (botones + pellizco)
+--------------------------------------------------------- */
+function applyZoom(delta){
+  zoomLevel = THREE.MathUtils.clamp(zoomLevel + delta, -15, 25);
+  const fov = THREE.MathUtils.clamp(baseFov - zoomLevel*1.6, 20, 100);
+  leftCam.fov = fov;
+  rightCam.fov = fov;
+  leftCam.updateProjectionMatrix();
+  rightCam.updateProjectionMatrix();
+}
+document.getElementById('zoomInBtn').addEventListener('click', ()=> applyZoom(1));
+document.getElementById('zoomOutBtn').addEventListener('click', ()=> applyZoom(-1));
+
+// Pellizco (pinch) con dos dedos sobre toda la pantalla del HUD
+let pinchStartDist = null;
+document.getElementById('hud').addEventListener('touchstart', (e)=>{
+  if(e.touches.length === 2){
+    pinchStartDist = Math.hypot(
+      e.touches[0].clientX - e.touches[1].clientX,
+      e.touches[0].clientY - e.touches[1].clientY
+    );
+  }
+}, {passive:true});
+document.getElementById('hud').addEventListener('touchmove', (e)=>{
+  if(e.touches.length === 2 && pinchStartDist){
+    const d = Math.hypot(
+      e.touches[0].clientX - e.touches[1].clientX,
+      e.touches[0].clientY - e.touches[1].clientY
+    );
+    const delta = (d - pinchStartDist) * 0.05;
+    applyZoom(delta);
+    pinchStartDist = d;
+  }
+}, {passive:true});
+document.getElementById('hud').addEventListener('touchend', (e)=>{
+  if(e.touches.length < 2) pinchStartDist = null;
+});
+
+/* ---------------------------------------------------------
+   MIRAR CON EL DEDO (respaldo si no hay giroscopio)
+--------------------------------------------------------- */
+const hudEl = document.getElementById('hud');
+function isInsideExcludedZone(x, y){
+  const zones = [joyZone, document.getElementById('zoomZone'), document.getElementById('topBar'), document.getElementById('ipdRow')];
+  for(const z of zones){
+    const r = z.getBoundingClientRect();
+    if(x >= r.left && x <= r.right && y >= r.top && y <= r.bottom) return true;
+  }
+  return false;
+}
+hudEl.addEventListener('touchstart', (e)=>{
+  if(e.touches.length !== 1) return;
+  const t = e.touches[0];
+  if(isInsideExcludedZone(t.clientX, t.clientY)) return;
+  dragActive = true; dragId = t.identifier;
+  dragLastX = t.clientX; dragLastY = t.clientY;
+}, {passive:true});
+hudEl.addEventListener('touchmove', (e)=>{
+  if(!dragActive) return;
+  for(const t of e.changedTouches){
+    if(t.identifier !== dragId) continue;
+    const dx = t.clientX - dragLastX;
+    const dy = t.clientY - dragLastY;
+    manualYaw -= dx * 0.005;
+    manualPitch = THREE.MathUtils.clamp(manualPitch - dy * 0.005, -1.4, 1.4);
+    dragLastX = t.clientX; dragLastY = t.clientY;
+  }
+}, {passive:true});
+hudEl.addEventListener('touchend', (e)=>{
+  for(const t of e.changedTouches){
+    if(t.identifier === dragId){ dragActive = false; dragId = null; }
+  }
+});
+
+document.getElementById('ipdSlider').addEventListener('input', (e)=>{
+  ipd = parseFloat(e.target.value) / 100; // cm -> m aprox
+  updateIPD();
+});
+
+/* ---------------------------------------------------------
+   RECENTRAR / SALIR
+--------------------------------------------------------- */
+document.getElementById('recenterBtn').addEventListener('click', ()=>{
+  deviceAlphaOffset = lastAlpha;
+});
+
+document.getElementById('exitBtn').addEventListener('click', ()=>{
+  exitVRMode();
+});
+
+function exitVRMode(){
+  document.getElementById('hud').classList.remove('active');
+  document.getElementById('startScreen').style.display = 'flex';
+  if(document.fullscreenElement) document.exitFullscreen().catch(()=>{});
+  if(screen.orientation && screen.orientation.unlock) {
+    try{ screen.orientation.unlock(); }catch(e){}
+  }
+}
+
+/* ---------------------------------------------------------
+   ENTRAR EN MODO VR
+--------------------------------------------------------- */
+enterBtn.addEventListener('click', async ()=>{
+  if(!pendingFile) return;
+  window.__vrStartTime = performance.now();
+
+  // Si el navegador no exige requestPermission() (Android Chrome más viejo,
+  // sin la API todavía) y el usuario no tocó "2 · Activar giroscopio",
+  // igual intentamos activarlo acá: no hace falta gesto especial en ese caso.
+  if(!orientationReady){
+    const needsPermission = typeof DeviceOrientationEvent !== 'undefined' &&
+      typeof DeviceOrientationEvent.requestPermission === 'function';
+    if(!needsPermission){
+      await enableOrientation();
+    }
+  }
+
+  // Fullscreen y bloqueo de orientación van después, ya con la activación
+  // "pegajosa" del clic (no necesitan ser lo primerísimo como requestPermission).
+  const el = document.documentElement;
+  try{
+    if(el.requestFullscreen){ await el.requestFullscreen(); debugLog('Fullscreen: OK'); }
+    else debugLog('Fullscreen: API no disponible en este navegador/contexto');
+  }catch(e){ debugLog(`Fullscreen falló: ${e.message || e}`); }
+
+  try{
+    if(screen.orientation && screen.orientation.lock){
+      await screen.orientation.lock('landscape');
+      debugLog('Bloqueo de orientación landscape: OK');
+    } else {
+      debugLog('screen.orientation.lock no disponible (girá el celular manualmente)');
+    }
+  }catch(e){ debugLog(`Bloqueo de orientación falló: ${e.message || e}`); }
+
+  if(!renderer) initThree();
+  loadModel(pendingFile);
+
+  document.getElementById('startScreen').style.display = 'none';
+  document.getElementById('hud').classList.add('active');
+  deviceAlphaOffset = null;
+
+  if(!animating){ animating = true; requestAnimationFrame(animate); }
+});
+
+document.getElementById('hideControlsBtn').addEventListener('click', ()=>{
+  document.getElementById('hud').classList.toggle('controls-hidden');
+});
+
+/* ---------------------------------------------------------
+   LOOP DE ANIMACIÓN
+--------------------------------------------------------- */
+let animating = false;
+function animate(){
+  requestAnimationFrame(animate);
+  const dt = Math.min(clock.getDelta(), 0.05);
+
+  pollGamepad(dt);
+
+  screenOrientAngle = getScreenOrientationAngle();
+  const gyroFresh = gyroDetected && (performance.now() - lastOrientTime) < 1500;
+  const warnEl = document.getElementById('gyroWarning');
+
+  if(orientationReady && gyroFresh){
+    let alpha = lastAlpha;
+    if(deviceAlphaOffset !== null){
+      alpha = ((lastAlpha - deviceAlphaOffset) + 360) % 360;
+    }
+    setHeadQuaternionFromDevice(alpha, lastBeta, lastGamma, screenOrientAngle);
+    if(warnEl) warnEl.classList.remove('show');
+  } else {
+    // Respaldo: mirar arrastrando el dedo (útil si el sensor está bloqueado
+    // por el visor de Artifacts, o si el celular no tiene giroscopio)
+    const e2 = new THREE.Euler(manualPitch, manualYaw, 0, 'YXZ');
+    headYaw.quaternion.setFromEuler(e2);
+    if(warnEl && animating && (performance.now() - (window.__vrStartTime||0)) > 2000){
+      warnEl.classList.add('show');
+    }
+  }
+
+  // Movimiento: se mueve según el yaw actual de la cabeza (solo horizontal)
+  if(moveVec.lengthSq() > 0.0001){
+    const yawOnly = new THREE.Euler().setFromQuaternion(headYaw.quaternion, 'YXZ').y;
+    const forward = new THREE.Vector3(Math.sin(yawOnly), 0, Math.cos(yawOnly));
+    const right = new THREE.Vector3(Math.cos(yawOnly), 0, -Math.sin(yawOnly));
+    const step = new THREE.Vector3();
+    step.addScaledVector(forward, -moveVec.y * MOVE_SPEED * dt);
+    step.addScaledVector(right, moveVec.x * MOVE_SPEED * dt);
+    player.position.add(step);
+  }
+
+  if(!renderer) return;
+  const w = window.innerWidth, h = window.innerHeight;
+  renderer.setScissorTest(true);
+
+  renderer.setViewport(0,0,w/2,h);
+  renderer.setScissor(0,0,w/2,h);
+  renderer.render(scene, leftCam);
+
+  renderer.setViewport(w/2,0,w/2,h);
+  renderer.setScissor(w/2,0,w/2,h);
+  renderer.render(scene, rightCam);
+
+  renderer.setScissorTest(false);
+}
+</script>
+</body>
+</html>
